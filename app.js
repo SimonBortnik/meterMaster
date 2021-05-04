@@ -1,8 +1,51 @@
 var mqtt = require('mqtt');
+var yara = require("yara");
 const {persist} = require("./storage.js")
 
-let MQT_PI = "http://172.17.0.3:1883"
+let MQT_PI = "http://192.168.1.200:1883"
 let LOCAL_ADD = "http://localhost:1883/"
+
+//
+// Yara
+//
+let scanner;
+
+yara.initialize(function(error) {
+    if (error) {
+        console.error(error.message)
+    } else {
+        var rules = [
+            {filename: "rules.yara"}
+        ]
+
+        scanner = yara.createScanner()
+
+        scanner.configure({rules: rules}, function(error, warnings) {
+            if (error) {
+                console.log("ERROR")
+                if (error instanceof yara.CompileRulesError) {
+                    console.error(error.message + ": " + JSON.stringify(error.errors))
+                } else {
+                    console.error(error.message)
+                }
+            } else {
+                if (warnings.length) {
+                    console.error("Compile warnings: " + JSON.stringify(warnings))
+                } else {/*
+                    var req = {buffer: Buffer.from("content")}
+
+                    scanner.scan(req, function(error, result) {
+                        if (error) {
+                            console.error(error.message)
+                        } else {
+                            console.error(JSON.stringify(result))
+                        }
+                    }) */
+                }
+            }
+        })
+    }
+})
 
 //
 // Mosquitto
@@ -24,10 +67,14 @@ client.on("error", function (error) {
 client.on('message', function (topic, message, packet) {
     //console.log("message is "+ message);
     console.log("topic is " + topic);
-    let receivedData = JSON.parse(message);
-    console.log(receivedData.host)
+    var req = {buffer: Buffer.from(message)}
+
+    scanner.scan(req, function(error, result) {
+        if (error) {
+            console.error(error.message)
+        } else {
+            console.error(JSON.stringify(result))
+        }
+    })
 });
 
-//
-// Yara
-//
