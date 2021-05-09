@@ -4,7 +4,7 @@ const {persistBill} = require("./storageSQLite.js");
 // ENUMs
 const OP = {
     BILL : "bill",
-    PERSIST: "persist"
+    LOG_ERROR: "logError"
 };
 
 const NAME = {
@@ -24,7 +24,7 @@ function handleRules(rulesObject) {
         }
 
         //Handle persisting
-        if(metaQuery(NAME.ACTION, metas) == OP.PERSIST){
+        if(metaQuery(NAME.ACTION, metas) == OP.LOG_ERROR){
             persist("");
         }
 

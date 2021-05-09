@@ -3,13 +3,6 @@ rule content {
         true
 }
 
-rule response {
-    strings:
-        $text_string1 = "success"
-    condition:
-        $text_string1
-}
-
 rule successful {
     strings:
         $code2XX = /\"statusCode\":2\d\d/
@@ -17,13 +10,28 @@ rule successful {
         $code2XX
 }
 
-rule billing_should_happen {
+rule error {
+    strings:
+        $errorCode = /\"statusCode\":(4|5)\d\d/
+    condition:
+        $errorCode
+}
+
+rule billing_required {
     meta:
         highestLevel = true
         price = 20
         action = "bill"
     condition:
         content and successful
+}
+
+rule billing_required {
+    meta:
+        highestLevel = true
+        action = "logError"
+    condition:
+        content and error
 }
 
 rule should_not_be_detected {
