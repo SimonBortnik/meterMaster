@@ -12,6 +12,8 @@
   "dependencies": {
     "flatted": "^3.1.1",
     "mqtt": "^4.2.6",
+    "sequelize": "^6.6.2",
+    "sqlite3": "^5.0.2",
     "yara": "^2.2.0"
   }
 }

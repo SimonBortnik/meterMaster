@@ -1,11 +1,12 @@
 var mqtt = require('mqtt');
 var yara = require("yara");
-const {persist} = require("./storage.js");
+//const {persist} = require("./storage.js");
+const {persist} = require("./storageSQLite.js");
 const {handleRules} = require("./rulesHandler");
 var Flatted = require('flatted');
 
 let MQT_PI = "http://192.168.1.200:1883"
-let LOCAL_ADD = "http://localhost:1883/"
+let LOCAL_ADDR = "http://localhost:1883/"
 
 //
 // Yara
@@ -81,4 +82,3 @@ client.on('message', function (topic, message, packet) {
         }
     })
 });
-

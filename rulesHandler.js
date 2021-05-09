@@ -1,12 +1,13 @@
 const {persist} = require("./storage.js");
+const {persistBill} = require("./storageSQLite.js");
 
 // ENUMs
-var OP = {
+const OP = {
     BILL : "bill",
     PERSIST: "persist"
 };
 
-var NAME = {
+const NAME = {
     ACTION : "action",
     PRICE : "price"
 };
@@ -19,7 +20,7 @@ function handleRules(rulesObject) {
 
         // Handle Billing
         if(metaQuery(NAME.ACTION, metas) == OP.BILL){
-            persist(metaQuery(NAME.PRICE, metas));
+            persistBill(rule.id, metaQuery(NAME.PRICE, metas));
         }
 
         //Handle persisting
