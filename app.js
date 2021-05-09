@@ -1,6 +1,7 @@
 var mqtt = require('mqtt');
 var yara = require("yara");
 const {persist} = require("./storage.js");
+const {handleRules} = require("./rulesHandler");
 var Flatted = require('flatted');
 
 let MQT_PI = "http://192.168.1.200:1883"
@@ -51,7 +52,7 @@ yara.initialize(function(error) {
 //
 // Mosquitto
 //
-// TODO: shared subscriptiion group --> no guarantee of QoS level 2
+// TODO: shared subscription group --> no guarantee of QoS level 2
 
 // Connection to message broker with "exactly once"-guarantee
 var client = mqtt.connect(MQT_PI, {clientId: "master"});
@@ -67,19 +68,16 @@ client.on("error", function (error) {
 
 // Handling of received messages
 client.on('message', function (topic, message, packet) {
-    //console.log("message is ",message);
-    //console.log("topic is " + topic);
     var req = {buffer: Buffer.from(message)};
     let reqString = message.toString();
     let test = Flatted.parse(reqString);
-    //console.log(test);
-    //console.log(reqString);
 
     scanner.scan(req, function(error, result) {
         if (error) {
             console.error(error.message)
         } else {
-            console.error(JSON.stringify(result))
+//            console.error(JSON.stringify(result))
+            handleRules(result);
         }
     })
 });

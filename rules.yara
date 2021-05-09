@@ -19,7 +19,9 @@ rule successful {
 
 rule billing_should_happen {
     meta:
+        highestLevel = true
         price = 20
+        action = "bill"
     condition:
         content and successful
 }
