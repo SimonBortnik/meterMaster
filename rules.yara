@@ -5,14 +5,14 @@ rule content {
 
 rule successful {
     strings:
-        $code2XX = /\"statusCode\":2\d\d/
+        $code2XX = /statusCode: 2\d\d/
     condition:
         $code2XX
 }
 
 rule error {
     strings:
-        $errorCode = /\"statusCode\":(4|5)\d\d/
+        $errorCode = /statusCode: (4|5)\d\d/
     condition:
         $errorCode
 }
@@ -26,7 +26,7 @@ rule billing_required {
         content and successful
 }
 
-rule billing_required {
+rule persisting_required {
     meta:
         highestLevel = true
         action = "logError"

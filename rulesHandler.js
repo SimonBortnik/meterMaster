@@ -23,7 +23,7 @@ function handleRules(rulesObject) {
             persistBill(rule.id, metaQuery(NAME.PRICE, metas));
         }
 
-        //Handle persisting
+        // Handle persisting errors
         if(metaQuery(NAME.ACTION, metas) == OP.LOG_ERROR){
             persist("");
         }

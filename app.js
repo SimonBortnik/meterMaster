@@ -2,18 +2,25 @@ var mqtt = require('mqtt');
 var yara = require("yara");
 //const {persist} = require("./storage.js");
 const {persist} = require("./storageSQLite.js");
+const {test} = require("./storageSQLite.js");
 const {handleRules} = require("./rulesHandler");
 var Flatted = require('flatted');
 
 let MQT_PI = "http://192.168.1.200:1883"
 let LOCAL_ADDR = "http://localhost:1883/"
+var YAML = require('json2yaml')
+let debug = false
+
+if (process.argv.length > 2){
+    debug = (process.argv.includes("-d"))
+}
 
 //
 // Yara
 //
 let scanner;
 
-yara.initialize(function(error) {
+yara.initialize(function (error) {
     if (error) {
         console.error(error.message)
     } else {
@@ -23,7 +30,7 @@ yara.initialize(function(error) {
 
         scanner = yara.createScanner()
 
-        scanner.configure({rules: rules}, function(error, warnings) {
+        scanner.configure({rules: rules}, function (error, warnings) {
             if (error) {
                 console.log("ERROR")
                 if (error instanceof yara.CompileRulesError) {
@@ -34,16 +41,6 @@ yara.initialize(function(error) {
             } else {
                 if (warnings.length) {
                     console.error("Compile warnings: " + JSON.stringify(warnings))
-                } else {/*
-                    var req = {buffer: Buffer.from("content")}
-
-                    scanner.scan(req, function(error, result) {
-                        if (error) {
-                            console.error(error.message)
-                        } else {
-                            console.error(JSON.stringify(result))
-                        }
-                    }) */
                 }
             }
         })
@@ -69,15 +66,19 @@ client.on("error", function (error) {
 
 // Handling of received messages
 client.on('message', function (topic, message, packet) {
-    var req = {buffer: Buffer.from(message)};
     let reqString = message.toString();
-    let test = Flatted.parse(reqString);
+    let reqYamlString = YAML.stringify(JSON.parse(reqString))
+    let reqYamlObj = {buffer: Buffer.from(reqYamlString)}
 
-    scanner.scan(req, function(error, result) {
+    if (debug){
+        console.log(reqYamlString)
+    }
+
+    scanner.scan(reqYamlObj, function (error, result) {
         if (error) {
             console.error(error.message)
         } else {
-//            console.error(JSON.stringify(result))
+            console.log(JSON.stringify(result))
             handleRules(result);
         }
     })
