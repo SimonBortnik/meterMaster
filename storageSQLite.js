@@ -34,9 +34,4 @@ function getBills(){
     });
 }
 
-// TODO: When to call sync?
-function test(){
-    sequelize.sync();
-}
-
-module.exports = {persistBill, getBills, test};
+module.exports = {persistBill, getBills};

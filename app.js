@@ -8,11 +8,13 @@ var Flatted = require('flatted');
 
 let MQT_PI = "http://192.168.1.200:1883"
 let LOCAL_ADDR = "http://localhost:1883/"
+let CASE_HTTP_REQUEST = "httpRequest"
+let CASE_WEBSOCKET = "websocket"
 var YAML = require('json2yaml')
 let debug = false
 
 if (process.argv.length > 2){
-    debug = (process.argv.includes("-d"))
+    debug = (process.argv.includes("-d") || process.argv.includes("--debug"))
 }
 
 //
@@ -50,36 +52,59 @@ yara.initialize(function (error) {
 //
 // Mosquitto
 //
-// TODO: shared subscription group --> no guarantee of QoS level 2
 
 // Connection to message broker with "exactly once"-guarantee
 var client = mqtt.connect(MQT_PI, {clientId: "master"});
 client.on("connect", function () {
     console.log("Metering Master connected");
     if (client.connected == true) {
-        client.subscribe("testtopic", {qos: 2});
+        client.subscribe("httpRequest", {qos: 2});
+        client.subscribe("websocket", {qos: 2});
     }
 })
 client.on("error", function (error) {
     console.log("Can't connect" + error)
 });
 
-// Handling of received messages
+// Handling of received messages with distinction of cases
 client.on('message', function (topic, message, packet) {
-    let reqString = message.toString();
-    let reqYamlString = YAML.stringify(JSON.parse(reqString))
-    let reqYamlObj = {buffer: Buffer.from(reqYamlString)}
 
-    if (debug){
-        console.log(reqYamlString)
+    let reqBufferObj
+
+    // Case: HTTP request was intercepted
+    if (topic == CASE_HTTP_REQUEST) {
+        let reqString = message.toString()
+        let reqYamlString = YAML.stringify(JSON.parse(reqString))
+        reqBufferObj= {buffer: Buffer.from(reqYamlString)}
+        if (debug){
+            console.log(reqYamlString)
+        }
     }
 
-    scanner.scan(reqYamlObj, function (error, result) {
-        if (error) {
-            console.error(error.message)
-        } else {
-            console.log(JSON.stringify(result))
-            handleRules(result);
+    //  Case: Websocket data was intercepted
+    if (topic == CASE_WEBSOCKET) {
+        let test = message.toString()
+        reqBufferObj = {buffer: message}
+        if (debug){
+            let reqString = message.toString();
+            console.log(reqString)
         }
-    })
+
+    }
+
+    // Application of rules if reqBuffer is not undefined
+    if (reqBufferObj !== undefined) {
+        scanner.scan(reqBufferObj, function (error, result) {
+            if (error) {
+                console.error(error.message)
+            } else {
+                if (debug) {
+                    console.log(YAML.stringify(result))
+                }
+                handleRules(result);
+            }
+        })
+    }
+
+
 });
