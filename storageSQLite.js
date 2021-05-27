@@ -16,15 +16,20 @@ const Bill = sequelize.define('bill', {
     price : {
         type: Sequelize.FLOAT,
         allowNull: false
+    },
+    extractedInformation : {
+        type: Sequelize.STRING,
+        allowNull: true
     }
 }, {
     // options
 });
 
-function persistBill(ruleName, price){
+function persistBill(ruleName, price, extractedInformation){
     Bill.create({
         ruleName: ruleName,
-        price: price
+        price: price,
+        extractedInformation: extractedInformation
     })
 }
 

@@ -1,18 +1,17 @@
-var mqtt = require('mqtt');
-var yara = require("yara");
-//const {persist} = require("./storage.js");
-const {persist} = require("./storageSQLite.js");
-const {test} = require("./storageSQLite.js");
-const {handleRules} = require("./rulesHandler");
-var Flatted = require('flatted');
+let mqtt = require('mqtt')
+let yara = require("yara")
+let YAML = require('json2yaml')
+const {persist} = require("./storageSQLite.js")
+const {test} = require("./storageSQLite.js")
+const {handleRules} = require("./rulesHandler")
 
 let MQT_PI = "http://192.168.1.200:1883"
 let LOCAL_ADDR = "http://localhost:1883/"
 let CASE_HTTP_REQUEST = "httpRequest"
 let CASE_WEBSOCKET = "websocket"
-var YAML = require('json2yaml')
 let debug = false
 
+// Check if debug mode is activated
 if (process.argv.length > 2){
     debug = (process.argv.includes("-d") || process.argv.includes("--debug"))
 }
@@ -54,12 +53,12 @@ yara.initialize(function (error) {
 //
 
 // Connection to message broker with "exactly once"-guarantee
-var client = mqtt.connect(MQT_PI, {clientId: "master"});
+var client = mqtt.connect(MQT_PI, {clientId: "master"})
 client.on("connect", function () {
-    console.log("Metering Master connected");
+    console.log("Metering Master connected")
     if (client.connected == true) {
-        client.subscribe("httpRequest", {qos: 2});
-        client.subscribe("websocket", {qos: 2});
+        client.subscribe("httpRequest", {qos: 2})
+        client.subscribe("websocket", {qos: 2})
     }
 })
 client.on("error", function (error) {
@@ -101,10 +100,9 @@ client.on('message', function (topic, message, packet) {
                 if (debug) {
                     console.log(YAML.stringify(result))
                 }
-                handleRules(result);
+                let test = reqBufferObj.buffer
+                handleRules(result, reqBufferObj.buffer)
             }
         })
     }
-
-
 });

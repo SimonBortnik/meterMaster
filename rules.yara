@@ -36,6 +36,7 @@ rule logout {
         highestLevel = true
         price = 1
         action = "bill"
+        extract = "['url', ':']"
     strings:
         $logoutUrl = "url: \"/api/auth/logout\""
     condition:
