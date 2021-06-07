@@ -6,8 +6,6 @@ const sequelize = new Sequelize({
   logging: false
 })
 
-(async () => {
-  
 const Bill = sequelize.define('bill', {
   // attributes
   ruleName: {
@@ -38,25 +36,21 @@ const Error = sequelize.define('error', {
   }
 }, {
   // options
-})
-
-await Bill.sync()
+// eslint-disable-next-line func-call-spacing
+}) (async () => { await Bill.sync() })()
 
 const persistBill = async (ruleName, price, extractedInformation) => {
-    await Bill.create({
-      ruleName,
-      price,
-      extractedInformation
-    })
+  await Bill.create({
+    ruleName,
+    price,
+    extractedInformation
+  })
 }
 
 const persistError = async (ruleName, content) => {
-   await Error.create({
-      ruleName,
-      content 
-    })
+  await Error.create({
+    ruleName,
+    content
+  })
 }
-
-})()
-
 module.exports = { persistBill, persistError }
