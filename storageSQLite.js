@@ -1,42 +1,61 @@
-var sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./finally.sqlite');
-const { Sequelize } = require('sequelize');
+// const sqlite3 = require('sqlite3').verbose()
+// const db = new sqlite3.Database('./finally.sqlite')
+const { Sequelize } = require('sequelize')
 const sequelize = new Sequelize({
-    dialect: 'sqlite',
-    storage: './finally.sqlite',
-    logging: false
-});
+  dialect: 'sqlite',
+  storage: './meterMaster.sqlite',
+  logging: false
+})
 
 const Bill = sequelize.define('bill', {
-    // attributes
-    ruleName: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    price : {
-        type: Sequelize.FLOAT,
-        allowNull: false
-    },
-    extractedInformation : {
-        type: Sequelize.STRING,
-        allowNull: true
-    }
+  // attributes
+  ruleName: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  price: {
+    type: Sequelize.FLOAT,
+    allowNull: false
+  },
+  extractedInformation: {
+    type: Sequelize.STRING,
+    allowNull: true
+  }
 }, {
-    // options
-});
+  // options
+})
 
-function persistBill(ruleName, price, extractedInformation){
+const persistBill = (ruleName, price, extractedInformation) => {
+  Bill.sync().then(() => {
     Bill.create({
-        ruleName: ruleName,
-        price: price,
-        extractedInformation: extractedInformation
+      ruleName: ruleName,
+      price: price,
+      extractedInformation: extractedInformation
     })
+  })
 }
 
-function getBills(){
-    Bill.findAll().then(bills => {
-        console.log("All bills:", JSON.stringify(bills, null, 4));
-    });
+const Error = sequelize.define('error', {
+  // attributes
+  ruleName: {
+    type: Sequelize.STRING,
+    allowNull: false
+  },
+  content: {
+    type: Sequelize.STRING,
+    allowNull: false
+  }
+}, {
+  // options
+})
+
+const persistError = (ruleName, content) => {
+  Error.sync().then(() => {
+    Error.create({
+      ruleName: ruleName,
+      content: content
+    })
+  })
 }
 
-module.exports = {persistBill, getBills};
+module.exports = { persistBill, persistError }
