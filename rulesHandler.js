@@ -1,5 +1,4 @@
-const { persistBill } = require('./storageSQLite.js')
-const { persistError } = require('./storageSQLite.js')
+const { persistBill, persistError } = require('./storageSQLite.js')
 
 // ENUMs
 const OP = {
@@ -21,11 +20,11 @@ const handleRules = (rulesObject, buffer) => {
 
     // Handle Billing
     if (metaQuery(NAME.ACTION, metas) === OP.BILL) {
-      let extractedInformation
 
       // Extract information to database if needed
-      if (metaQuery(NAME.EXTRACT, metas) !== undefined) {
-        const rawExtract = metaQuery(NAME.EXTRACT, metas)
+      let extractedInformation
+      let rawExtract
+      if ((rawExtract = metaQuery(NAME.EXTRACT, metas)) !== undefined) {
         let subtractStrings = []
         if (rawExtract.trim().length > 0) {
           subtractStrings = JSON.parse(rawExtract.replaceAll("'", '"'))
