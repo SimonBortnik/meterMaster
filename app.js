@@ -6,9 +6,9 @@ const { handleRules } = require('./rulesHandler')
 const MQT_PI = 'http://192.168.1.200:1883'
 const CASE_HTTP_REQUEST = 'httpRequest'
 const CASE_WEBSOCKET = 'websocket'
-let debug = false
 
 // Check if debug mode is activated
+let debug = false
 if (process.argv.length > 2) {
   debug = (process.argv.includes('-d') || process.argv.includes('--debug'))
 }
@@ -22,6 +22,7 @@ let scanner
 yara.initialize((error) => {
   if (error) {
     console.error(error.message)
+    process.exit(1)
   } else {
     const rules = [
       { filename: 'rules.yara' }
@@ -29,15 +30,16 @@ yara.initialize((error) => {
     scanner = yara.createScanner()
     scanner.configure({ rules: rules }, (error, warnings) => {
       if (error) {
-        console.log('ERROR')
+        console.error('ERROR')
         if (error instanceof yara.CompileRulesError) {
           console.error(error.message + ': ' + JSON.stringify(error.errors))
         } else {
           console.error(error.message)
         }
+        process.exit(1)
       } else {
         if (warnings.length) {
-          console.error('Compile warnings: ' + JSON.stringify(warnings))
+          console.warning('Compile warnings: ' + JSON.stringify(warnings))
         }
       }
     })
@@ -58,7 +60,8 @@ client.on('connect', () => {
   }
 })
 client.on('error', (error) => {
-  console.log("Can't connect" + error)
+  console.error("Can't connect to MQTT: " + error)
+  process.exit(1)
 })
 
 // Handling of received messages with distinction of cases
@@ -75,7 +78,7 @@ client.on('message', (topic, message, packet) => {
     }
   }
 
-  //  Case: Websocket data was intercepted
+  // Case: Websocket data was intercepted
   if (topic === CASE_WEBSOCKET) {
     reqBufferObj = { buffer: message }
     if (debug) {
