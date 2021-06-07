@@ -1,12 +1,13 @@
-// const sqlite3 = require('sqlite3').verbose()
-// const db = new sqlite3.Database('./finally.sqlite')
 const { Sequelize } = require('sequelize')
+
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './meterMaster.sqlite',
   logging: false
 })
 
+(async () => {
+  
 const Bill = sequelize.define('bill', {
   // attributes
   ruleName: {
@@ -25,16 +26,6 @@ const Bill = sequelize.define('bill', {
   // options
 })
 
-const persistBill = (ruleName, price, extractedInformation) => {
-  Bill.sync().then(() => {
-    Bill.create({
-      ruleName: ruleName,
-      price: price,
-      extractedInformation: extractedInformation
-    })
-  })
-}
-
 const Error = sequelize.define('error', {
   // attributes
   ruleName: {
@@ -49,13 +40,23 @@ const Error = sequelize.define('error', {
   // options
 })
 
-const persistError = (ruleName, content) => {
-  Error.sync().then(() => {
-    Error.create({
-      ruleName: ruleName,
-      content: content
+await Bill.sync()
+
+const persistBill = async (ruleName, price, extractedInformation) => {
+    await Bill.create({
+      ruleName,
+      price,
+      extractedInformation
     })
-  })
 }
+
+const persistError = async (ruleName, content) => {
+   await Error.create({
+      ruleName,
+      content 
+    })
+}
+
+})()
 
 module.exports = { persistBill, persistError }
