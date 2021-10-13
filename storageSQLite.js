@@ -22,7 +22,8 @@ const Bill = sequelize.define('bill', {
   }
 }, {
   // options
-})
+});
+(async () => { await Bill.sync() })()
 
 const Error = sequelize.define('error', {
   // attributes
@@ -36,8 +37,8 @@ const Error = sequelize.define('error', {
   }
 }, {
   // options
-// eslint-disable-next-line func-call-spacing
-}) (async () => { await Bill.sync() })()
+});
+(async () => { await Error.sync() })()
 
 const persistBill = async (ruleName, price, extractedInformation) => {
   await Bill.create({

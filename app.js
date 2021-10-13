@@ -3,7 +3,7 @@ const yara = require('yara')
 const YAML = require('json2yaml')
 const { handleRules } = require('./rulesHandler')
 
-const MQT_PI = 'http://192.168.1.200:1883'
+const MQT_PI = 'http://192.168.1.8:1883'
 const CASE_HTTP_REQUEST = 'httpRequest'
 const CASE_WEBSOCKET = 'websocket'
 
@@ -39,7 +39,7 @@ yara.initialize((error) => {
         process.exit(1)
       } else {
         if (warnings.length) {
-          console.warning('Compile warnings: ' + JSON.stringify(warnings))
+          console.warn('Compile warnings: ' + JSON.stringify(warnings) + '\n')
         }
       }
     })

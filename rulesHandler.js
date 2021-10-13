@@ -20,7 +20,6 @@ const handleRules = (rulesObject, buffer) => {
 
     // Handle Billing
     if (metaQuery(NAME.ACTION, metas) === OP.BILL) {
-
       // Extract information to database if needed
       let extractedInformation
       let rawExtract
